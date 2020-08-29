@@ -20,23 +20,23 @@ public final class AsyncWorker {
         return new SimpleTaskBuilder(runnable);
     }
 
-    public <T> ResultTaskBuilder<T> forResult(AsyncCallable<T> callable) {
+    public static <T> ResultTaskBuilder<T> forResult(AsyncCallable<T> callable) {
         return new ResultTaskBuilder<>(callable);
     }
 
-    public FileResultTaskBuilder forFile(AsyncCallable<File> callable) {
+    public static FileResultTaskBuilder forFile(AsyncCallable<File> callable) {
         return new FileResultTaskBuilder(callable);
     }
 
-    public StringResultTaskBuilder forString(AsyncCallable<String> callable) {
+    public static StringResultTaskBuilder forString(AsyncCallable<String> callable) {
         return new StringResultTaskBuilder(callable);
     }
 
-    public IntegerResultTaskBuilder forInteger(AsyncCallable<Integer> callable) {
+    public static IntegerResultTaskBuilder forInteger(AsyncCallable<Integer> callable) {
         return new IntegerResultTaskBuilder(callable);
     }
 
-    public LongResultTaskBuilder forLong(AsyncCallable<Long> callable) {
+    public static LongResultTaskBuilder forLong(AsyncCallable<Long> callable) {
         return new LongResultTaskBuilder(callable);
     }
 }

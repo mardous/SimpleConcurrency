@@ -1,5 +1,6 @@
 package com.mardous.concurrency.task;
 
+import androidx.annotation.Nullable;
 import com.mardous.concurrency.AsyncCallable;
 import com.mardous.concurrency.Handlers;
 import com.mardous.concurrency.ResultFilter;
@@ -7,27 +8,31 @@ import com.mardous.concurrency.ResultFilter;
 import java.util.concurrent.Executor;
 
 /**
+ * A task that can execute an action and expect a
+ * result from such action.
+ *
  * @author Chris Alvarado (mardous)
  */
-public class ResultTask<T> extends Task {
+public class ResultTask<Result> extends Task<ResultTask<Result>> {
 
-    private final AsyncCallable<T> action;
-    private final ResultFilter<T> resultFilter;
+    private final AsyncCallable<Result> action;
+    private final ResultFilter<Result> resultFilter;
 
-    private T result;
+    private Result result;
 
-    public ResultTask(Executor executor, AsyncCallable<T> action, ResultFilter<T> resultFilter) {
+    ResultTask(Executor executor, AsyncCallable<Result> action, ResultFilter<Result> resultFilter) {
         super(executor);
         this.action = action;
         this.resultFilter = resultFilter;
     }
 
-    public T getResult() {
+    @Nullable
+    public Result getResult() {
         return result;
     }
 
     @Override
-    public Task execute() {
+    public ResultTask<Result> execute() {
         setState(State.RUNNING);
         uiThreadHandler.post(action::onPreExecute);
         executor.execute(() -> {

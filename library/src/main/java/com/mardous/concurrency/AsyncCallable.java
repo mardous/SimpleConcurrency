@@ -2,6 +2,7 @@ package com.mardous.concurrency;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.UiThread;
+import com.mardous.concurrency.internal.UnacceptableResultException;
 
 import java.util.concurrent.Callable;
 

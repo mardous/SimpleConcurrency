@@ -13,25 +13,21 @@ public class StringResultTaskBuilder extends ResultTaskBuilder<String> {
     }
 
     public StringResultTaskBuilder acceptsEmpty(boolean acceptsEmpty) {
-        this.resultFilter.add(s -> acceptsEmpty || !"".equals(s));
-        return this;
+        return (StringResultTaskBuilder) addFilter(s -> acceptsEmpty || !"".equals(s));
     }
 
     public StringResultTaskBuilder acceptsMinimumLength(int minimumLength) {
-        this.resultFilter.add(s -> s.length() >= minimumLength);
-        return this;
+        return (StringResultTaskBuilder) addFilter(s -> s.length() >= minimumLength);
     }
 
     public StringResultTaskBuilder acceptsMaximumLength(int maximumLength) {
-        this.resultFilter.add(s -> s.length() <= maximumLength);
-        return this;
+        return (StringResultTaskBuilder) addFilter(s -> s.length() <= maximumLength);
     }
 
     public StringResultTaskBuilder acceptsLengthBetween(int min, int max) {
-        this.resultFilter.add(s -> {
+        return (StringResultTaskBuilder) addFilter(s -> {
             int length = s.length();
             return length >= min && length <= max;
         });
-        return this;
     }
 }

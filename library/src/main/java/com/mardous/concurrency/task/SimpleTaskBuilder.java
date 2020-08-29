@@ -3,7 +3,7 @@ package com.mardous.concurrency.task;
 /**
  * @author Chris Alvarado (mardous)
  */
-public class SimpleTaskBuilder extends TaskBuilder {
+public class SimpleTaskBuilder extends TaskBuilder<SimpleTask> {
     private final Runnable runnable;
 
     public SimpleTaskBuilder(Runnable runnable) {
@@ -11,7 +11,12 @@ public class SimpleTaskBuilder extends TaskBuilder {
     }
 
     @Override
-    public Task execute() {
-        return new SimpleTask(executor, runnable).execute();
+    public SimpleTask create() {
+        return new SimpleTask(executor, runnable);
+    }
+
+    @Override
+    public SimpleTask execute() {
+        return create().execute();
     }
 }

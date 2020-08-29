@@ -5,18 +5,21 @@ import com.mardous.concurrency.Handlers;
 import java.util.concurrent.Executor;
 
 /**
+ * A task that simply executes an action without
+ * leaving a result.
+ *
  * @author Chris Alvarado (mardous)
  */
-public class SimpleTask extends Task {
+public class SimpleTask extends Task<SimpleTask> {
     private final Runnable runnable;
 
-    public SimpleTask(Executor executor, Runnable runnable) {
+    SimpleTask(Executor executor, Runnable runnable) {
         super(executor);
         this.runnable = runnable;
     }
 
     @Override
-    public Task execute() {
+    public SimpleTask execute() {
         setState(State.RUNNING);
         executor.execute(() -> {
             runnable.run();

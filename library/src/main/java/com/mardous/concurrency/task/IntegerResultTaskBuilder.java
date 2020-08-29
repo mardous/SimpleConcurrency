@@ -13,32 +13,26 @@ public class IntegerResultTaskBuilder extends ResultTaskBuilder<Integer> {
     }
 
     public IntegerResultTaskBuilder acceptsBetween(int min, int max) {
-        this.resultFilter.add(integer -> integer >= min && integer <= max);
-        return this;
+        return (IntegerResultTaskBuilder) addFilter(integer -> integer >= min && integer <= max);
     }
 
     public IntegerResultTaskBuilder acceptsMajorThan(int against) {
-        this.resultFilter.add(integer -> integer > against);
-        return this;
+        return (IntegerResultTaskBuilder) addFilter(integer -> integer > against);
     }
 
     public IntegerResultTaskBuilder acceptsMajorOrEqualTo(int against) {
-        this.resultFilter.add(integer -> integer >= against);
-        return this;
+        return (IntegerResultTaskBuilder) addFilter(integer -> integer >= against);
     }
 
     public IntegerResultTaskBuilder acceptsMinorThan(int against) {
-        this.resultFilter.add(integer -> integer < against);
-        return this;
+        return (IntegerResultTaskBuilder) addFilter(integer -> integer < against);
     }
 
     public IntegerResultTaskBuilder acceptsMinorOrEqualTo(int against) {
-        this.resultFilter.add(integer -> integer <= against);
-        return this;
+        return (IntegerResultTaskBuilder) addFilter(integer -> integer <= against);
     }
 
     public IntegerResultTaskBuilder acceptsNegative(boolean acceptsNegative) {
-        this.resultFilter.add(integer -> acceptsNegative || integer > -1);
-        return this;
+        return (IntegerResultTaskBuilder) addFilter(integer -> acceptsNegative || integer > -1);
     }
 }

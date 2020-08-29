@@ -13,32 +13,26 @@ public class LongResultTaskBuilder extends ResultTaskBuilder<Long> {
     }
 
     public LongResultTaskBuilder acceptsBetween(long min, long max) {
-        this.resultFilter.add(longg -> longg >= min && longg <= max);
-        return this;
+        return (LongResultTaskBuilder) addFilter(longg -> longg >= min && longg <= max);
     }
 
     public LongResultTaskBuilder acceptsMajorThan(long against) {
-        this.resultFilter.add(longg -> longg > against);
-        return this;
+        return (LongResultTaskBuilder) addFilter(longg -> longg > against);
     }
 
     public LongResultTaskBuilder acceptsMajorOrEqualTo(long against) {
-        this.resultFilter.add(longg -> longg >= against);
-        return this;
+        return (LongResultTaskBuilder) addFilter(longg -> longg >= against);
     }
 
     public LongResultTaskBuilder acceptsMinorThan(long against) {
-        this.resultFilter.add(longg -> longg < against);
-        return this;
+        return (LongResultTaskBuilder) addFilter(longg -> longg < against);
     }
 
     public LongResultTaskBuilder acceptsMinorOrEqualTo(long against) {
-        this.resultFilter.add(longg -> longg <= against);
-        return this;
+        return (LongResultTaskBuilder) addFilter(longg -> longg <= against);
     }
 
     public LongResultTaskBuilder acceptsNegative(boolean acceptsNegative) {
-        this.resultFilter.add(longg -> acceptsNegative || longg > -1);
-        return this;
+        return (LongResultTaskBuilder) addFilter(longg -> acceptsNegative || longg > -1);
     }
 }

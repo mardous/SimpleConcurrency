@@ -6,11 +6,11 @@ import java.util.concurrent.Executors;
 /**
  * @author Chris Alvarado (mardous)
  */
-public abstract class TaskBuilder {
+public abstract class TaskBuilder<TaskType extends Task> {
 
     protected Executor executor = Executors.newSingleThreadExecutor();
 
-    public TaskBuilder using(Executor executor) {
+    public TaskBuilder<TaskType> using(Executor executor) {
         if (executor == null) {
             throw new IllegalArgumentException("You have tried to set a null object as the " + Executor.class.getName() + " of this task.");
         }
@@ -19,10 +19,19 @@ public abstract class TaskBuilder {
     }
 
     /**
-     * Creates a new {@link SimpleTask} and immediately process
+     * Creates a new {@link Task task}.
+     * <p>The behaviour will depend mainly on the
+     * type of builder you're using.
+     *
+     * @return The created task.
+     */
+    public abstract TaskType create();
+
+    /**
+     * Creates a new {@link Task task} and immediately process
      * to execute it.
      *
-     * @return the created task.
+     * @return The executed task.
      */
-    public abstract Task execute();
+    public abstract TaskType execute();
 }

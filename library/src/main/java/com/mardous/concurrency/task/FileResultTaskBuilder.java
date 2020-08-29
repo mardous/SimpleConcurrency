@@ -15,17 +15,15 @@ public class FileResultTaskBuilder extends ResultTaskBuilder<File> {
     }
 
     public FileResultTaskBuilder mustBeFile(boolean mustBeFile) {
-        this.resultFilter.add(file -> !mustBeFile || file.isFile());
-        return this;
+        return (FileResultTaskBuilder) addFilter(file -> !mustBeFile || file.isFile());
     }
 
     public FileResultTaskBuilder mustBeDirectory(boolean mustBeDirectory) {
-        this.resultFilter.add(file -> !mustBeDirectory || file.isDirectory());
-        return this;
+        return (FileResultTaskBuilder) addFilter(file -> !mustBeDirectory || file.isDirectory());
     }
 
     public FileResultTaskBuilder mustBeEmptyDirectory(boolean mustBeEmpty) {
-        this.resultFilter.add(file -> {
+        return (FileResultTaskBuilder) addFilter(file -> {
             if (mustBeEmpty) {
                 String[] files = file.list();
                 if (files != null) {
@@ -35,16 +33,13 @@ public class FileResultTaskBuilder extends ResultTaskBuilder<File> {
             }
             return true;
         });
-        return this;
     }
 
     public FileResultTaskBuilder acceptsMinimumLength(long minimumLength) {
-        this.resultFilter.add(file -> file.length() >= minimumLength);
-        return this;
+        return (FileResultTaskBuilder) addFilter(file -> file.length() >= minimumLength);
     }
 
     public FileResultTaskBuilder acceptsMaximumLength(long maximumLength) {
-        this.resultFilter.add(file -> file.length() <= maximumLength);
-        return this;
+        return (FileResultTaskBuilder) addFilter(file -> file.length() <= maximumLength);
     }
 }
