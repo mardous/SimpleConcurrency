@@ -1,6 +1,6 @@
 apply plugin: 'com.jfrog.bintray'
 
-version = '1.0.0-RC1'
+version = libraryVersion
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
@@ -31,14 +31,21 @@ bintray {
     key = properties.getProperty("bintray.apikey")
 
     pkg {
-        repo = 'Maven'
-        name = 'SimpleConcurrency'
+        repo = bintrayRepo
+        name = bintrayName
         configurations = ['archives']
-        desc = 'An easy-to-use library for Android designed to be the perfect replacement for AsyncTask'
-        websiteUrl = 'https://github.com/mardous/SimpleConcurrency'
-        vcsUrl = 'https://github.com/mardous/SimpleConcurrency.git'
-        licenses = ["Apache-2.0"]
+        desc = libraryDescription
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = allLicenses
         publish = true
         publicDownloadNumbers = true
+        version {
+            desc = libraryDescription
+            gpg {
+                sign = true
+                passphrase = properties.getProperty("bintray.gpg.password")
+            }
+        }
     }
 }

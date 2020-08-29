@@ -1,7 +1,30 @@
 apply plugin: 'com.android.library'
+apply from: 'versioning.gradle'
 
-group = 'com.mardous'
-version = '1.0.0-RC1'
+ext {
+    bintrayRepo = 'Maven'
+    bintrayName = 'SimpleConcurrency'
+
+    publishedGroupId = 'com.mardous'
+    libraryName = 'SimpleConcurrency'
+    artifact = 'concurrency'
+
+    libraryDescription = 'An easy-to-use library for Android designed to be the perfect replacement for AsyncTask'
+
+    siteUrl = 'https://github.com/mardous/SimpleConcurrency'
+    gitUrl = 'https://github.com/mardous/SimpleConcurrency.git'
+
+    libraryVersion = '1.0.0-RC2'
+    libraryVersionCode = buildVersionCode(libraryVersion)
+
+    developerId = 'mardous'
+    developerName = 'Christians Martínez Alvarado'
+    developerEmail = 'mardous.contact@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
 
 android {
     compileSdkVersion 30
@@ -10,8 +33,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 1
-        versionName project.version
+        versionCode libraryVersionCode
+        versionName libraryVersion
     }
 
     compileOptions {
