@@ -1,0 +1,39 @@
+apply plugin: 'com.github.dcendents.android-maven'
+
+group = 'com.mardous'
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                groupId 'com.mardous'
+                artifactId 'concurrency'
+                name 'SimpleConcurrency'
+                description 'An easy-to-use library for Android designed to be the perfect replacement for AsyncTask'
+                url 'https://github.com/mardous/SimpleConcurrency'
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'mardous'
+                        name 'Christians Martínez Alvarado'
+                        email 'mardous.contact@gmail.com'
+                    }
+                }
+
+                scm {
+                    connection 'https://github.com/mardous/SimpleConcurrency.git'
+                    developerConnection 'https://github.com/mardous/SimpleConcurrency.git'
+                    url 'https://github.com/mardous/SimpleConcurrency'
+                }
+            }
+        }
+    }
+}

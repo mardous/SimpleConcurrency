@@ -1,0 +1,28 @@
+apply plugin: 'com.android.library'
+
+group = 'com.mardous'
+version = '1.0.0-RC1'
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion '30.0.0'
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 30
+        versionCode 1
+        versionName project.version
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation 'androidx.annotation:annotation:1.1.0'
+}
+
+apply from: 'maven-install.gradle'
+apply from: 'bintray.gradle'
