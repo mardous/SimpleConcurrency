@@ -1,7 +1,5 @@
 package com.mardous.concurrency.task;
 
-import com.mardous.concurrency.Handlers;
-
 import java.util.concurrent.Executor;
 
 /**
@@ -23,7 +21,7 @@ public class SimpleTask extends Task<SimpleTask> {
         setState(State.RUNNING);
         executor.execute(() -> {
             runnable.run();
-            Handlers.postHere(() -> setState(State.FINISHED));
+            finishTask();
         });
         return this;
     }

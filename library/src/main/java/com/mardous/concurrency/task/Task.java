@@ -60,6 +60,10 @@ public abstract class Task<Type extends Task> {
         }
     }
 
+    protected final void finishTask() {
+        Handlers.postMainThread(() -> setState(State.FINISHED));
+    }
+
     /**
      * Represents the current state of a task.
      */

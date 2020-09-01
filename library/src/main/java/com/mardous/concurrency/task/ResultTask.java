@@ -2,7 +2,6 @@ package com.mardous.concurrency.task;
 
 import androidx.annotation.Nullable;
 import com.mardous.concurrency.AsyncCallable;
-import com.mardous.concurrency.Handlers;
 import com.mardous.concurrency.ResultFilter;
 
 import java.util.concurrent.Executor;
@@ -37,7 +36,7 @@ public class ResultTask<Result> extends Task<ResultTask<Result>> {
         uiThreadHandler.post(action::onPreExecute);
         executor.execute(() -> {
             try {
-                this.result = action.call();
+                ResultTask.this.result = action.call();
                 if (!resultFilter.acceptable(result)) {
                     uiThreadHandler.post(() -> action.onBadResult(result));
                     return;
@@ -46,7 +45,7 @@ public class ResultTask<Result> extends Task<ResultTask<Result>> {
             } catch (Exception e) {
                 uiThreadHandler.post(() -> action.onError(e));
             }
-            Handlers.postHere(() -> setState(State.FINISHED));
+            finishTask();
         });
         return this;
     }
