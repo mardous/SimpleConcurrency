@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.mardous:concurrency:1.0.0-RC2'
+    implementation 'com.mardous:concurrency:1.0.0-RC3'
 }
 ```
 
