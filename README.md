@@ -13,11 +13,11 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.mardous:concurrency:1.0.0-RC3'
+    implementation 'com.mardous:concurrency:1.0.0-RC4'
 }
 ```
 
-Executing a simple task (with a Runnable):
+Executing a simple task (with a [Runnable]):
 
 ```java
 AsyncWorker.simpleTask(() -> longRunningTask()).execute();
@@ -113,7 +113,9 @@ Task task = AsyncWorker.forResult(new AsyncCallable<Something>() {
 task.cancel();
 ```
 ## Note:
-This library is not fully documented. Any help you can give me to finish the documentation would be great!.
+This library is not fully documented because my original language is
+Spanish and (sometimes) I have terrible mistakes when writing in English.
+Any help you can give me to finish the documentation would be great!.
 
 ## License
 ```
@@ -131,3 +133,5 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+[Runnable]:https://developer.android.com/reference/java/lang/Runnable.html
