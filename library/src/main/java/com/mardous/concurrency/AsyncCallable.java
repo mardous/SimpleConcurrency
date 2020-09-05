@@ -1,30 +1,20 @@
 package com.mardous.concurrency;
 
-import androidx.annotation.CallSuper;
-import androidx.annotation.UiThread;
+import com.mardous.concurrency.internal.TaskListener;
 import com.mardous.concurrency.internal.UnacceptableResultException;
 
 import java.util.concurrent.Callable;
 
 /**
- * This is the base {@link Callable} used to operate along with
- * {@link com.mardous.concurrency.task.ResultTask}.
- * <p>The main difference of this with the standard {@link Callable}
- * is that this offers possibility for execute actions before
- * and after the execution of the task as well.
+ * A {@link Callable} that implements the {@link TaskListener} {@code interface}.
+ * <p>Generally, this is intended to operate along with {@link com.mardous.concurrency.task.ResultTask}.
  *
  * @author Chris Alvarado (mardous)
  */
-public abstract class AsyncCallable<T> implements Callable<T> {
-    /**
-     * Called before the {@link #call()} method of this
-     * {@link Callable}.
-     */
-    @UiThread
-    @CallSuper
-    public void onPreExecute() {
-        // Implemented by sub-classes.
-    }
+public abstract class AsyncCallable<T> implements Callable<T>, TaskListener {
+
+    @Override
+    public void onPreExecute() {}
 
     /**
      * Called when the {@link #call()} method of this
@@ -33,11 +23,7 @@ public abstract class AsyncCallable<T> implements Callable<T> {
      *
      * @param result The result of {@link #call()}.
      */
-    @UiThread
-    @CallSuper
-    public void onSuccess(T result) {
-        // Implemented by sub-classes.
-    }
+    public void onSuccess(T result) {}
 
     /**
      * Called when the {@link #call()} method of this
@@ -55,15 +41,9 @@ public abstract class AsyncCallable<T> implements Callable<T> {
         onError(new UnacceptableResultException(result));
     }
 
-    /**
-     * Called when the {@link #call()} method of this
-     * {@link Callable} throws an exception.
-     *
-     * @param error The exception thrown.
-     */
-    @UiThread
-    @CallSuper
-    public void onError(Exception error) {
-        // Implemented by sub-classes.
-    }
+    @Override
+    public void onCanceled() {}
+
+    @Override
+    public void onError(Exception error) {}
 }

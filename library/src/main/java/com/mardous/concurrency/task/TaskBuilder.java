@@ -1,6 +1,7 @@
 package com.mardous.concurrency.task;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -8,9 +9,9 @@ import java.util.concurrent.Executors;
  */
 public abstract class TaskBuilder<TaskType extends Task> {
 
-    protected Executor executor = Executors.newSingleThreadExecutor();
+    protected ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public TaskBuilder<TaskType> using(Executor executor) {
+    public TaskBuilder<TaskType> using(ExecutorService executor) {
         if (executor == null) {
             throw new IllegalArgumentException("You have tried to set a null object as the " + Executor.class.getName() + " of this task.");
         }

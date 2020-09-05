@@ -1,9 +1,10 @@
 package com.mardous.concurrency.task;
 
 import android.os.Handler;
+import android.os.Looper;
 import com.mardous.concurrency.Handlers;
+import com.mardous.concurrency.internal.TaskListener;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -13,12 +14,14 @@ import java.util.concurrent.ExecutorService;
 public abstract class Task<Type extends Task> {
 
     protected final Handler uiThreadHandler = Handlers.forMainThread();
-    protected final Executor executor;
+    protected ExecutorService executor;
+    protected TaskListener taskListener;
 
     private State state = State.IDLE;
 
-    protected Task(Executor executor) {
+    Task(ExecutorService executor, TaskListener taskListener) {
         this.executor = executor;
+        this.taskListener = taskListener;
     }
 
     /**
@@ -33,12 +36,7 @@ public abstract class Task<Type extends Task> {
      * For tasks that has been already canceled,
      * this has no effect.
      */
-    public final void cancel() {
-        if (executor instanceof ExecutorService) {
-            ((ExecutorService) executor).shutdown();
-        }
-        setState(State.CANCELED);
-    }
+    public abstract void cancel(boolean mayInterruptIfRunning);
 
     /**
      * Gets the {@link State state} of this task.
@@ -47,21 +45,48 @@ public abstract class Task<Type extends Task> {
         return state;
     }
 
-    final void setState(State newState) {
+    protected final void setState(final State state) {
+        synchronized (this) {
+            setState0(state);
+            switch (state) {
+                case RUNNING:
+                    uiThreadHandler.post(taskListener::onPreExecute);
+                    Looper.prepare();
+                    break;
+                case CANCELED:
+                    uiThreadHandler.post(taskListener::onCanceled);
+                    completeShutdown();
+                    break;
+                case FINISHED:
+                    completeShutdown();
+                    break;
+            }
+        }
+    }
+
+    private void setState0(State newState) {
         synchronized (this) {
             if (newState == null) {
-                throw new IllegalArgumentException("Using null as task state is not permitted.");
+                throw new IllegalArgumentException("'null' is not a valid state!");
             }
             if (newState.level < state.level) {
-                throw new IllegalStateException("Downgrading task state is not permitted. You tried to downgrade from " +
+                throw new IllegalStateException("Downgrading task state is not permitted. You have tried to downgrade from " +
                         state.nameWithLevel() + " to " + newState.nameWithLevel());
             }
             this.state = newState;
         }
     }
 
-    protected final void finishTask() {
-        Handlers.postMainThread(() -> setState(State.FINISHED));
+    protected final void completeShutdown() {
+        if (executor != null) {
+            executor.shutdown();
+        }
+        if (Looper.myLooper() != null) {
+            Looper.myLooper().quit();
+        }
+        // To reduce footprint
+        executor = null;
+        taskListener = null;
     }
 
     /**
@@ -86,7 +111,7 @@ public abstract class Task<Type extends Task> {
         CANCELED(50),
         /**
          * Means the task has finished its execution normally
-         * (with no calls to {@link #cancel()}). When you're using
+         * (with no calls to {@link #cancel(boolean)}). When you're using
          * {@link ResultTask} and reach this state, you may be capable
          * of getting a result from {@link ResultTask#getResult()}.
          * When in this state, the task is not capable of get back to

@@ -1,11 +1,17 @@
 package com.mardous.concurrency;
 
 import android.os.Handler;
+import androidx.annotation.CallSuper;
 
+/**
+ * @param <T> The result type of method {@code call}
+ * @author Chris Alvarado (mardous)
+ */
 public abstract class AsyncProgressCallable<T> extends AsyncCallable<T> {
 
     private Handler uiThreadHandler = Handlers.forMainThread();
 
+    @CallSuper
     @Override
     public void onPreExecute() {
         super.onPreExecute();
@@ -29,7 +35,7 @@ public abstract class AsyncProgressCallable<T> extends AsyncCallable<T> {
     /**
      * Called when the progress of this task has been updated
      * using {@link #updateProgress(long, long)}.
-     * <p>This method will be called always from the main thread.
+     * <p>This method will always be called from the <b>main</b> {@link Thread thread}.
      *
      * @param progress The current progress.
      * @param max The max progress.
