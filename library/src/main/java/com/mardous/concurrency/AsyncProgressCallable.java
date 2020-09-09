@@ -4,7 +4,7 @@ import android.os.Handler;
 import androidx.annotation.CallSuper;
 
 /**
- * @param <T> The result type of method {@code call}
+ * @param <T> The result type of method {@link #call()}
  * @author Chris Alvarado (mardous)
  */
 public abstract class AsyncProgressCallable<T> extends AsyncCallable<T> {

@@ -3,7 +3,7 @@ package com.mardous.concurrency.internal;
 import com.mardous.concurrency.task.Task;
 
 /**
- * An {@code interface} used to listen events occurred during the
+ * An {@code interface} used to listen to events occurred during the
  * execution of a {@link Task}.
  * <p>Such events are:
  * <ol>

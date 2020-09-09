@@ -1,5 +1,6 @@
 package com.mardous.concurrency.task;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mardous.concurrency.AsyncCallable;
 import com.mardous.concurrency.ResultFilter;
@@ -40,13 +41,11 @@ public class ResultTask<Result> extends Task<ResultTask<Result>> {
     }
 
     @Override
-    public void cancel(boolean mayInterruptIfRunning) {
-        if (future != null) {
-            future.cancel(mayInterruptIfRunning);
-        }
-        setState(State.CANCELED);
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        return doCancellation(future, mayInterruptIfRunning);
     }
 
+    @NonNull
     @Override
     public ResultTask<Result> execute() {
         setState(State.RUNNING);

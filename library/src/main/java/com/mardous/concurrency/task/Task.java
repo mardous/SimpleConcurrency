@@ -6,6 +6,7 @@ import com.mardous.concurrency.Handlers;
 import com.mardous.concurrency.internal.TaskListener;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * @param <Type> The type of this task.
@@ -14,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 public abstract class Task<Type extends Task> {
 
     protected final Handler uiThreadHandler = Handlers.forMainThread();
+
     protected ExecutorService executor;
     protected TaskListener taskListener;
 
@@ -36,7 +38,7 @@ public abstract class Task<Type extends Task> {
      * For tasks that has been already canceled,
      * this has no effect.
      */
-    public abstract void cancel(boolean mayInterruptIfRunning);
+    public abstract boolean cancel(boolean mayInterruptIfRunning);
 
     /**
      * Gets the {@link State state} of this task.
@@ -77,13 +79,19 @@ public abstract class Task<Type extends Task> {
         }
     }
 
-    protected final void completeShutdown() {
+    protected final <T> boolean doCancellation(Future<T> future, boolean mayInterruptIfRunning) {
+        setState(State.CANCELED);
+        return future != null && future.cancel(mayInterruptIfRunning);
+    }
+
+    private void completeShutdown() {
         if (executor != null) {
             executor.shutdown();
         }
         if (Looper.myLooper() != null) {
             Looper.myLooper().quit();
         }
+
         // To reduce footprint
         executor = null;
         taskListener = null;

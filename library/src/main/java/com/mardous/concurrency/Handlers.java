@@ -4,8 +4,6 @@ import android.os.Handler;
 import android.os.Looper;
 
 /**
- * Provides custom methods for working with {@link Handler}s.
- *
  * @author Chris Alvarado (mardous)
  */
 public class Handlers {

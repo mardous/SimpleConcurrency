@@ -1,5 +1,6 @@
 package com.mardous.concurrency.task;
 
+import androidx.annotation.NonNull;
 import com.mardous.concurrency.AsyncRunnable;
 
 import java.util.concurrent.ExecutorService;
@@ -22,13 +23,11 @@ public class SimpleTask extends Task<SimpleTask> {
     }
 
     @Override
-    public void cancel(boolean mayInterruptIfRunning) {
-        if (future != null) {
-            future.cancel(mayInterruptIfRunning);
-        }
-        setState(State.CANCELED);
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        return doCancellation(future, mayInterruptIfRunning);
     }
 
+    @NonNull
     @Override
     public SimpleTask execute() {
         setState(State.RUNNING);
