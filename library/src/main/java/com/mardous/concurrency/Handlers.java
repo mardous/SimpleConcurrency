@@ -65,6 +65,8 @@ public class Handlers {
      * after some amount of time.
      *
      * @param runnable The action to post.
+     * @param delayMs The amount of milliseconds to wait before
+     *                posting the action.
      */
     public static void postDelayedHere(Runnable runnable, long delayMs) {
         forThread().postDelayed(runnable, delayMs);
