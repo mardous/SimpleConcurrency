@@ -31,8 +31,4 @@ public class IntegerResultTaskBuilder extends ResultTaskBuilder<Integer> {
     public IntegerResultTaskBuilder acceptsMinorOrEqualTo(int against) {
         return (IntegerResultTaskBuilder) addFilter(integer -> integer <= against);
     }
-
-    public IntegerResultTaskBuilder acceptsNegative(boolean acceptsNegative) {
-        return (IntegerResultTaskBuilder) addFilter(integer -> acceptsNegative || integer > -1);
-    }
 }

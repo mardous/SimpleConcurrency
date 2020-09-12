@@ -1,7 +1,6 @@
 package com.mardous.concurrency;
 
 import android.os.Handler;
-import androidx.annotation.CallSuper;
 
 /**
  * @param <T> The result type of method {@link #call()}
@@ -11,10 +10,8 @@ public abstract class AsyncProgressCallable<T> extends AsyncCallable<T> {
 
     private Handler uiThreadHandler = Handlers.forMainThread();
 
-    @CallSuper
     @Override
     public void onPreExecute() {
-        super.onPreExecute();
         updateProgress(0, 0);
     }
 
@@ -22,23 +19,20 @@ public abstract class AsyncProgressCallable<T> extends AsyncCallable<T> {
      * Used to update the progress.
      *
      * @param progress The current progress.
-     * @param max The max progress.
+     * @param max      The max progress.
      */
     protected void updateProgress(long progress, long max) {
-        if (progress > max) {
-            progress = max;
-        }
-        final long fProgress = progress;
-        uiThreadHandler.post(() -> onProgressUpdate(fProgress, max));
+        uiThreadHandler.post(() -> onProgressUpdate(progress, max));
     }
 
     /**
      * Called when the progress of this task has been updated
      * using {@link #updateProgress(long, long)}.
-     * <p>This method will always be called from the <b>main</b> {@link Thread thread}.
+     *
+     * <p>This method will always be called from the main thread.
      *
      * @param progress The current progress.
-     * @param max The max progress.
+     * @param max      The max progress.
      */
     public abstract void onProgressUpdate(long progress, long max);
 }

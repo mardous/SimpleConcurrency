@@ -32,7 +32,4 @@ public class LongResultTaskBuilder extends ResultTaskBuilder<Long> {
         return (LongResultTaskBuilder) addFilter(longg -> longg <= against);
     }
 
-    public LongResultTaskBuilder acceptsNegative(boolean acceptsNegative) {
-        return (LongResultTaskBuilder) addFilter(longg -> acceptsNegative || longg > -1);
-    }
 }

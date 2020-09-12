@@ -1,12 +1,12 @@
 package com.mardous.concurrency;
 
-import com.mardous.concurrency.internal.TaskListener;
 import com.mardous.concurrency.task.FileResultTaskBuilder;
 import com.mardous.concurrency.task.IntegerResultTaskBuilder;
 import com.mardous.concurrency.task.LongResultTaskBuilder;
 import com.mardous.concurrency.task.ResultTaskBuilder;
 import com.mardous.concurrency.task.SimpleTaskBuilder;
 import com.mardous.concurrency.task.StringResultTaskBuilder;
+import com.mardous.concurrency.task.TaskConnection;
 
 import java.io.File;
 
@@ -15,19 +15,20 @@ import java.io.File;
  */
 public final class AsyncWorker {
 
-    private AsyncWorker() {}
+    private AsyncWorker() {
+    }
 
     /**
      * Executes a simple task represented by the given {@link Runnable}.
      * <p>If you want to listen to events occurred during the execution
      * of the task, you must use {@link #simpleTask(AsyncRunnable)}
-     * instead, which gives you access to the {@link TaskListener#onPreExecute()},
-     * {@link TaskListener#onCanceled()} and {@link TaskListener#onError(Exception)}
+     * instead, which gives you access to the {@link TaskConnection#onPreExecute()},
+     * {@link TaskConnection#onCancelled()} and {@link TaskConnection#onError(Exception)}
      * callbacks.
      *
      * @param runnable The {@link Runnable} to execute.
      * @return A new instance of {@link SimpleTaskBuilder} which you
-     *         can use later to build your task.
+     * can use later to build your task.
      */
     public static SimpleTaskBuilder simpleTask(Runnable runnable) {
         return new SimpleTaskBuilder(runnable);
@@ -42,7 +43,7 @@ public final class AsyncWorker {
      *
      * @param runnable The {@link AsyncRunnable} to execute.
      * @return A new instance of {@link SimpleTaskBuilder} which you
-     *         can use later to build your task.
+     * can use later to build your task.
      */
     public static SimpleTaskBuilder simpleTask(AsyncRunnable runnable) {
         return new SimpleTaskBuilder(runnable);

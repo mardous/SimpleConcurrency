@@ -1,14 +1,26 @@
 package com.mardous.concurrency.task;
 
 import android.os.Handler;
-import android.os.Looper;
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
 import com.mardous.concurrency.Handlers;
-import com.mardous.concurrency.internal.TaskListener;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
 /**
+ * A {@code task} is defined by a computation that runs on a background thread and
+ * may leave a result, which is published on the UI thread. An asynchronous task is
+ * defined by one generic type, called {@code Type}, which represents the type of
+ * the task:
+ *
+ * <p>Currently, we provide two types:
+ * <ol>
+ *     <li>{@link SimpleTask}</li>
+ *     <li>{@link ResultTask}</li>
+ * </ol>
+ *
  * @param <Type> The type of this task.
  * @author Chris Alvarado (mardous)
  */
@@ -16,85 +28,138 @@ public abstract class Task<Type extends Task> {
 
     protected final Handler uiThreadHandler = Handlers.forMainThread();
 
-    protected ExecutorService executor;
-    protected TaskListener taskListener;
+    protected Executor executor;
+    protected TaskConnection taskConnection;
 
-    private State state = State.IDLE;
+    private volatile State state = State.IDLE;
 
-    Task(ExecutorService executor, TaskListener taskListener) {
+    Task(Executor executor, TaskConnection taskConnection) {
         this.executor = executor;
-        this.taskListener = taskListener;
+        this.taskConnection = taskConnection;
     }
 
     /**
-     * Executes this task.
+     * Executes the task. The task returns itself (this) so that the caller
+     * can keep a reference to it.
      *
      * @return this same task.
      */
+    @MainThread
     public abstract Type execute();
 
     /**
-     * Cancels this task.
-     * For tasks that has been already canceled,
-     * this has no effect.
+     * Attempts to cancel execution of this task.  This attempt will
+     * fail if the task has already completed, has already been cancelled,
+     * or could not be cancelled for some other reason. If successful,
+     * and this task has not started when {@code cancel} is called,
+     * this task should never run.  If the task has already started,
+     * then the {@code mayInterruptIfRunning} parameter determines
+     * whether the thread executing this task should be interrupted in
+     * an attempt to stop the task.
+     *
+     * <p>After this method returns, subsequent calls to {@link #isCancelled}
+     * will always return {@code true}.
+     *
+     * @param mayInterruptIfRunning {@code true} if the thread executing this
+     * task should be interrupted; otherwise, in-progress tasks are allowed
+     * to complete
+     * @return {@code false} if the task could not be cancelled,
+     * typically because it has already completed normally;
+     * {@code true} otherwise
      */
+    @MainThread
     public abstract boolean cancel(boolean mayInterruptIfRunning);
+
+    /**
+     * Returns true if this task was cancelled before it completed normally
+     *
+     * @return {@code true} if this task was cancelled before it completed
+     */
+    public final boolean isCancelled() {
+        synchronized (Task.class) {
+            return state == State.CANCELLED;
+        }
+    }
 
     /**
      * Gets the {@link State state} of this task.
      */
     public final State getState() {
-        return state;
-    }
-
-    protected final void setState(final State state) {
-        synchronized (this) {
-            setState0(state);
-            switch (state) {
-                case RUNNING:
-                    uiThreadHandler.post(taskListener::onPreExecute);
-                    Looper.prepare();
-                    break;
-                case CANCELED:
-                    uiThreadHandler.post(taskListener::onCanceled);
-                    completeShutdown();
-                    break;
-                case FINISHED:
-                    completeShutdown();
-                    break;
-            }
+        synchronized (Task.class) {
+            return state;
         }
     }
 
-    private void setState0(State newState) {
-        synchronized (this) {
+    /**
+     * Internally sets the state of this task.
+     */
+    protected final void setState(final State state) {
+        setStateInternal(state);
+        synchronized (Task.class) {
+            uiThreadHandler.post(() -> {
+                switch (state) {
+                    case RUNNING:
+                        taskConnection.mTask = this;
+                        taskConnection.onPreExecute();
+                        break;
+                    case CANCELLED:
+                        taskConnection.onCancelled();
+                        completeShutdown();
+                        break;
+                    case FINISHED:
+                        taskConnection.onFinished();
+                        completeShutdown();
+                        break;
+                }
+            });
+        }
+    }
+
+    private void setStateInternal(State newState) {
+        synchronized (Task.class) {
             if (newState == null) {
-                throw new IllegalArgumentException("'null' is not a valid state!");
+                throw new IllegalArgumentException("'null' is not a valid state.");
+            }
+            if (newState == State.RUNNING && state == State.RUNNING) {
+                throw new IllegalStateException("Cannot execute task: the task is already running.");
             }
             if (newState.level < state.level) {
-                throw new IllegalStateException("Downgrading task state is not permitted. You have tried to downgrade from " +
+                throw new IllegalArgumentException("Downgrade task state is not permitted. You have tried to downgrade from " +
                         state.nameWithLevel() + " to " + newState.nameWithLevel());
             }
             this.state = newState;
         }
     }
 
+    /**
+     * Internally cancels this task.
+     */
     protected final <T> boolean doCancellation(Future<T> future, boolean mayInterruptIfRunning) {
-        setState(State.CANCELED);
+        setState(State.CANCELLED);
         return future != null && future.cancel(mayInterruptIfRunning);
     }
 
-    private void completeShutdown() {
-        if (executor != null) {
-            executor.shutdown();
-        }
-        if (Looper.myLooper() != null) {
-            Looper.myLooper().quit();
-        }
+    /**
+     * Posts an action on the main thread.
+     */
+    protected final void post(@NonNull Runnable action) {
+        uiThreadHandler.post(action);
+    }
 
+    /**
+     * Posts an error on the main thread. In other words,
+     * calls the {@link TaskConnection#onError(Exception)} method.
+     */
+    @WorkerThread
+    protected final void postError(Exception e) {
+        post(() -> taskConnection.onError(e));
+    }
+
+    private void completeShutdown() {
         // To reduce footprint
+        taskConnection.mTask = null;
+        taskConnection = null;
         executor = null;
-        taskListener = null;
     }
 
     /**
@@ -102,8 +167,7 @@ public abstract class Task<Type extends Task> {
      */
     public enum State {
         /**
-         * Means the task is created but has been
-         * not executed yet.
+         * Means the task is created but has been not executed yet.
          */
         IDLE(0),
         /**
@@ -111,20 +175,12 @@ public abstract class Task<Type extends Task> {
          */
         RUNNING(25),
         /**
-         * Means the task has been previously canceled by the user.
-         * When in this state, the task is not capable of get back
-         * to the RUNNING state and trying to do that will throw an
-         * {@link IllegalStateException}.
+         * Means the task has been previously cancelled by the user.
          */
-        CANCELED(50),
+        CANCELLED(50),
         /**
          * Means the task has finished its execution normally
-         * (with no calls to {@link #cancel(boolean)}). When you're using
-         * {@link ResultTask} and reach this state, you may be capable
-         * of getting a result from {@link ResultTask#getResult()}.
-         * When in this state, the task is not capable of get back to
-         * the RUNNING state and trying to do that will throw an
-         * {@link IllegalStateException}.
+         * (with no calls to {@link #cancel(boolean)}).
          */
         FINISHED(75);
 

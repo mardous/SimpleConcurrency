@@ -1,15 +1,19 @@
 package com.mardous.concurrency.task;
 
+import android.os.Binder;
+import android.os.Process;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import com.mardous.concurrency.AsyncCallable;
 import com.mardous.concurrency.ResultFilter;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * A task that can execute an action and expect a
@@ -22,22 +26,45 @@ public class ResultTask<Result> extends Task<ResultTask<Result>> {
     private final AsyncCallable<Result> action;
     private final ResultFilter<Result> resultFilter;
 
-    private Future<Result> future;
+    private FutureTask<Result> future;
 
-    ResultTask(ExecutorService executor, AsyncCallable<Result> action, ResultFilter<Result> resultFilter) {
+    ResultTask(Executor executor, AsyncCallable<Result> action, ResultFilter<Result> resultFilter) {
         super(executor, action);
         this.action = action;
         this.resultFilter = resultFilter;
     }
 
+    /**
+     * Waits if necessary for the task to complete, and then retrieves its result.
+     *
+     * @return the computed result
+     * @throws ExecutionException   if the computation threw an
+     *                              exception
+     * @throws InterruptedException if the current thread was interrupted
+     *                              while waiting
+     */
     @Nullable
-    public Result getResult() {
-        try {
-            return future.get();
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        return null;
+    @MainThread
+    public Result getResult() throws ExecutionException, InterruptedException {
+        return future.get();
+    }
+
+    /**
+     * Waits if necessary for at most the given time for the task to complete,
+     * and then retrieves its result, if available.
+     *
+     * @param timeout the maximum time to wait
+     * @param unit    the time unit of the timeout argument
+     * @return the computed result
+     * @throws ExecutionException   if the computation threw an
+     * @throws InterruptedException if the current thread was interrupted
+     *                              while waiting
+     * @throws TimeoutException     if the wait timed out
+     */
+    @Nullable
+    @MainThread
+    public Result getResult(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        return future.get(timeout, unit);
     }
 
     @Override
@@ -49,21 +76,34 @@ public class ResultTask<Result> extends Task<ResultTask<Result>> {
     @Override
     public ResultTask<Result> execute() {
         setState(State.RUNNING);
-        RunnableFuture<Result> futureTask = new FutureTask<>(() -> {
+
+        future = new FutureTask<>(() -> {
+            Result result;
             try {
-                Result result = action.call();
-                if (resultFilter.acceptable(result))
-                    uiThreadHandler.post(() -> action.onSuccess(result));
-                else uiThreadHandler.post(() -> action.onBadResult(result));
-                return result;
+                Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                result = action.call();
+                Binder.flushPendingCommands();
             } catch (Exception e) {
-                uiThreadHandler.post(() -> action.onError(e));
+                postError(e);
+                return null;
+            } finally {
+                setState(State.FINISHED);
             }
-            setState(State.FINISHED);
-            return null;
+            return postResult(result);
         });
-        executor.submit(futureTask);
-        future = futureTask;
+
+        executor.execute(future);
+
         return this;
+    }
+
+    @WorkerThread
+    private Result postResult(Result result) {
+        if (resultFilter.acceptable(result)) {
+            post(() -> action.onSuccess(result));
+        } else {
+            post(() -> action.onBadResult(result));
+        }
+        return result;
     }
 }

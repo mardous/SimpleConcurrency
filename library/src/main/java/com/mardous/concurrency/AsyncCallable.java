@@ -1,20 +1,17 @@
 package com.mardous.concurrency;
 
-import com.mardous.concurrency.internal.TaskListener;
 import com.mardous.concurrency.internal.UnacceptableResultException;
+import com.mardous.concurrency.task.TaskConnection;
 
 import java.util.concurrent.Callable;
 
 /**
- * A {@link Callable} that implements the {@link TaskListener} {@code interface}.
+ * A {@link Callable} that extends the {@link TaskConnection} {@code class}.
  * <p>Generally, this is intended to operate along with {@link com.mardous.concurrency.task.ResultTask}.
  *
  * @author Chris Alvarado (mardous)
  */
-public abstract class AsyncCallable<T> implements Callable<T>, TaskListener {
-
-    @Override
-    public void onPreExecute() {}
+public abstract class AsyncCallable<T> extends TaskConnection implements Callable<T> {
 
     /**
      * Called when the {@link #call()} method of this
@@ -23,7 +20,8 @@ public abstract class AsyncCallable<T> implements Callable<T>, TaskListener {
      *
      * @param result The result of {@link #call()}.
      */
-    public void onSuccess(T result) {}
+    public void onSuccess(T result) {
+    }
 
     /**
      * Called when the {@link #call()} method of this
@@ -40,10 +38,4 @@ public abstract class AsyncCallable<T> implements Callable<T>, TaskListener {
         // Default implementation.
         onError(new UnacceptableResultException(result));
     }
-
-    @Override
-    public void onCanceled() {}
-
-    @Override
-    public void onError(Exception error) {}
 }

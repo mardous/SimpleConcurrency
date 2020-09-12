@@ -3,8 +3,9 @@ package com.mardous.concurrency.task;
 import androidx.annotation.NonNull;
 import com.mardous.concurrency.AsyncRunnable;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.Executor;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 
 /**
  * A task that simply executes an action without
@@ -14,10 +15,10 @@ import java.util.concurrent.Future;
  */
 public class SimpleTask extends Task<SimpleTask> {
 
-    private final Runnable runnable;
-    private Future<?> future;
+    private final AsyncRunnable runnable;
+    private RunnableFuture<?> future;
 
-    SimpleTask(ExecutorService executor, AsyncRunnable runnable) {
+    SimpleTask(Executor executor, AsyncRunnable runnable) {
         super(executor, runnable);
         this.runnable = runnable;
     }
@@ -31,14 +32,19 @@ public class SimpleTask extends Task<SimpleTask> {
     @Override
     public SimpleTask execute() {
         setState(State.RUNNING);
-        future = executor.submit(() -> {
+
+        future = new FutureTask<>(() -> {
             try {
                 runnable.run();
             } catch (Exception e) {
-                uiThreadHandler.post(() -> taskListener.onError(e));
+                postError(e);
+            } finally {
+                setState(State.FINISHED);
             }
-            setState(State.FINISHED);
-        });
+        }, null);
+
+        executor.execute(future);
+
         return this;
     }
 }

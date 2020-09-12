@@ -24,7 +24,7 @@ public class ResultTaskBuilder<Result> extends TaskBuilder<ResultTask<Result>> {
      * Adds a {@link Predicate predicate} that will be used to
      * test the result of this task.
      * <p>All predicates are added to a {@link ResultFilter filter},
-     * so when the task finishes its execution and there is a result,
+     * so when the task finishes its execution, and there is a result,
      * the filter will proceed to iterate through all predicates testing
      * then on the result.
      * <p>If a test is not passed, that result is declared as unacceptable,
