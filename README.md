@@ -1,10 +1,13 @@
 # SimpleConcurrency
 [![License: Apache 2](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://github.com/mardous/SimpleConcurrency/blob/master/LICENSE)
+[![](https://jitpack.io/v/mardous/SimpleConcurrency.svg)](https://jitpack.io/#mardous/SimpleConcurrency)
 
 An easy-to-use library for Android designed to be the perfect replacement for AsyncTask
 
 ## Implementation
 First, add the dependency:
+
+##### Using Bintray OSS:
 ```groovy
 repositories {
     maven {
@@ -14,6 +17,17 @@ repositories {
 
 dependencies {
     implementation 'com.mardous:concurrency:1.0.0-RC5'
+}
+```
+
+##### Using JitPack:
+```groovy
+repositories {
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    implementation 'com.github.mardous:SimpleConcurrency:Tag'
 }
 ```
 
