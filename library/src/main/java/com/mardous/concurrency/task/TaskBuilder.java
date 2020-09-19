@@ -1,5 +1,9 @@
 package com.mardous.concurrency.task;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import com.mardous.concurrency.Utils;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
@@ -9,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
 public abstract class TaskBuilder<TaskType extends Task> {
 
@@ -33,26 +37,11 @@ public abstract class TaskBuilder<TaskType extends Task> {
      * with an executor configured for your use case.
      *
      * @see #using(Executor)
-     * @see #usePoolExecutor()
+     * @see #usingPoolExecutor()
      */
-    protected Executor executor = Executors.newSingleThreadExecutor(threadFactory);
+    Executor executor = Executors.newSingleThreadExecutor(threadFactory);
 
-    /**
-     * Configures the {@link Executor} that will execute the task.
-     *
-     * <p>NOTE: By default, we use a single worker thread, which executes tasks off an
-     * unbounded queue. This can benefit for long-running tasks, such as network operations.
-     *
-     * @param executor The executor to use.
-     * @return this same builder instance.
-     */
-    public TaskBuilder<TaskType> using(Executor executor) {
-        if (executor == null) {
-            throw new IllegalArgumentException("Executor cannot be null.");
-        }
-        this.executor = executor;
-        return this;
-    }
+    Lifecycle lifecycle;
 
     /**
      * Configures this builder to use a pool of threads instead of a single worker thread.
@@ -69,6 +58,33 @@ public abstract class TaskBuilder<TaskType extends Task> {
     }
 
     /**
+     * Configures the {@link Executor} that will execute the task.
+     *
+     * <p>NOTE: By default, we use a single worker thread, which executes tasks off an
+     * unbounded queue. This can benefit for long-running tasks, such as network operations.
+     *
+     * @param executor The executor to use.
+     * @return this same builder instance.
+     */
+    public TaskBuilder<TaskType> using(@NonNull Executor executor) {
+        Utils.assertNonNull(executor, "Executor");
+        this.executor = executor;
+        return this;
+    }
+
+    /**
+     * Attach this {@link Task task} to the provided {@link Lifecycle}.
+     *
+     * @param lifecycle The lifecycle to attach to.
+     * @return this same builder instance.
+     */
+    public TaskBuilder<TaskType> attachLifecycle(@NonNull Lifecycle lifecycle) {
+        Utils.assertNonNull(lifecycle, "Lifecycle");
+        this.lifecycle = lifecycle;
+        return this;
+    }
+
+    /**
      * Creates a new {@link Task task}.
      * <p>Its behaviour will depend mainly on the type of builder you're using.
      *
@@ -77,7 +93,7 @@ public abstract class TaskBuilder<TaskType extends Task> {
     public abstract TaskType create();
 
     /**
-     * Creates a new {@link Task task} and immediately process to execute it.
+     * Creates a new {@link Task task} and immediately proceeds to execute it.
      *
      * @return The executed task.
      */

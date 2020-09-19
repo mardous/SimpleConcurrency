@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
 public class ResultFilter<T> {
 

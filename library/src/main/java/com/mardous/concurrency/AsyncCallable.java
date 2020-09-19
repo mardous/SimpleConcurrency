@@ -9,7 +9,7 @@ import java.util.concurrent.Callable;
  * A {@link Callable} that extends the {@link TaskConnection} {@code class}.
  * <p>Generally, this is intended to operate along with {@link com.mardous.concurrency.task.ResultTask}.
  *
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
 public abstract class AsyncCallable<T> extends TaskConnection implements Callable<T> {
 

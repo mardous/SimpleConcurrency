@@ -1,10 +1,13 @@
 package com.mardous.concurrency.task;
 
 import android.os.Handler;
+import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
+import androidx.lifecycle.Lifecycle;
 import com.mardous.concurrency.Handlers;
+import com.mardous.concurrency.Utils;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
@@ -21,21 +24,26 @@ import java.util.concurrent.Future;
  *     <li>{@link ResultTask}</li>
  * </ol>
  *
- * @param <Type> The type of this task.
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
-public abstract class Task<Type extends Task> {
+public abstract class Task implements TaskLifecycleObserver {
 
     protected final Handler uiThreadHandler = Handlers.forMainThread();
 
-    protected Executor executor;
+    protected volatile Lifecycle lifecycle;
+    protected volatile Executor executor;
     protected TaskConnection taskConnection;
 
     private volatile State state = State.IDLE;
 
-    Task(Executor executor, TaskConnection taskConnection) {
-        this.executor = executor;
+    Task(TaskBuilder taskBuilder, TaskConnection taskConnection) {
+        this.lifecycle = taskBuilder.lifecycle;
+        this.executor = taskBuilder.executor;
         this.taskConnection = taskConnection;
+
+        if (lifecycle != null)
+            lifecycle.addObserver(this);
+        else Log.w("SimpleConcurrency", "Running a Task without an attached Lifecycle may produce memory leaks");
     }
 
     /**
@@ -45,7 +53,7 @@ public abstract class Task<Type extends Task> {
      * @return this same task.
      */
     @MainThread
-    public abstract Type execute();
+    public abstract Task execute();
 
     /**
      * Attempts to cancel execution of this task.  This attempt will
@@ -117,13 +125,11 @@ public abstract class Task<Type extends Task> {
 
     private void setStateInternal(State newState) {
         synchronized (Task.class) {
-            if (newState == null) {
-                throw new IllegalArgumentException("'null' is not a valid state.");
-            }
+            Utils.assertNonNull(newState, "State");
             if (newState == State.RUNNING && state == State.RUNNING) {
                 throw new IllegalStateException("Cannot execute task: the task is already running.");
             }
-            if (newState.level < state.level) {
+            if (!state.isBellow(newState)) {
                 throw new IllegalArgumentException("Downgrade task state is not permitted. You have tried to downgrade from " +
                         state.nameWithLevel() + " to " + newState.nameWithLevel());
             }
@@ -156,10 +162,18 @@ public abstract class Task<Type extends Task> {
     }
 
     private void completeShutdown() {
+        if (lifecycle != null)
+            lifecycle.removeObserver(this);
+
         // To reduce footprint
         taskConnection.mTask = null;
         taskConnection = null;
         executor = null;
+    }
+
+    @Override
+    public void onLifecycleDestroyed() {
+        cancel(true);
     }
 
     /**
@@ -190,8 +204,16 @@ public abstract class Task<Type extends Task> {
             this.level = level;
         }
 
+        boolean isAtLeast(State state) {
+            return level >= state.level;
+        }
+
+        boolean isBellow(State state) {
+            return level < state.level;
+        }
+
         String nameWithLevel() {
-            return name() + "(Level: " + level + ")";
+            return name() + " (Level: " + level + ")";
         }
     }
 }

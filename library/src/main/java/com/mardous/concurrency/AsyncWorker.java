@@ -11,7 +11,7 @@ import com.mardous.concurrency.task.TaskConnection;
 import java.io.File;
 
 /**
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
 public final class AsyncWorker {
 

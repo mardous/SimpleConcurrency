@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 /**
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
 public class Handlers {
 

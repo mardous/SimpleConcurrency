@@ -10,12 +10,14 @@ package com.mardous.concurrency.task;
  *     <li>{@link #onError(Exception)}</lo>
  * </ol>
  *
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
 public abstract class TaskConnection {
 
     /**
-     * Stores a weak reference to the associated task.
+     * Keeps a reference to the associated task.
+     * Once the task is finished, we set its value to null
+     * in order to avoid memory leaks.
      */
     Task mTask;
 
@@ -50,7 +52,7 @@ public abstract class TaskConnection {
      * Is highly recommended to check this value periodically on the execution of you
      * task in order to stop it when necessary.
      *
-     * <p>In example: if you are running a loop;
+     * <p>In example: if we are running a loop;
      * <pre><code>
      *     Person oldest = null;
      *     for (Person person : persons) {

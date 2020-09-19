@@ -11,7 +11,7 @@ import com.mardous.concurrency.task.ResultTaskBuilder;
  * through the {@link ResultTaskBuilder#addFilter(Predicate)}
  * method of a {@link ResultTaskBuilder}.
  *
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
 public class UnacceptableResultException extends Exception {
 

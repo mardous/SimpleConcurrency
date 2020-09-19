@@ -6,7 +6,7 @@ import com.mardous.concurrency.AsyncCallable;
 import java.io.File;
 
 /**
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
 public class FileResultTaskBuilder extends ResultTaskBuilder<File> {
 

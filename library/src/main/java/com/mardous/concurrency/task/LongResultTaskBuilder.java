@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import com.mardous.concurrency.AsyncCallable;
 
 /**
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
 public class LongResultTaskBuilder extends ResultTaskBuilder<Long> {
 

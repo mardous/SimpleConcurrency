@@ -9,7 +9,7 @@ import com.mardous.concurrency.internal.Predicate;
 /**
  * The {@link TaskBuilder builder} used to create {@link ResultTask result tasks}.
  *
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
 public class ResultTaskBuilder<Result> extends TaskBuilder<ResultTask<Result>> {
 
@@ -50,7 +50,7 @@ public class ResultTaskBuilder<Result> extends TaskBuilder<ResultTask<Result>> {
 
     @Override
     public ResultTask<Result> create() {
-        return new ResultTask<Result>(executor, action, resultFilter);
+        return new ResultTask<Result>(this, action, resultFilter);
     }
 
     @Override

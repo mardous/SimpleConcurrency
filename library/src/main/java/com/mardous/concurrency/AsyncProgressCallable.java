@@ -4,7 +4,7 @@ import android.os.Handler;
 
 /**
  * @param <T> The result type of method {@link #call()}
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
 public abstract class AsyncProgressCallable<T> extends AsyncCallable<T> {
 

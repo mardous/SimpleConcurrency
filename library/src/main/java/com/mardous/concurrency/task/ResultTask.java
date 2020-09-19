@@ -10,7 +10,6 @@ import com.mardous.concurrency.AsyncCallable;
 import com.mardous.concurrency.ResultFilter;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -19,17 +18,17 @@ import java.util.concurrent.TimeoutException;
  * A task that can execute an action and expect a
  * result from such action.
  *
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
-public class ResultTask<Result> extends Task<ResultTask<Result>> {
+public class ResultTask<Result> extends Task {
 
     private final AsyncCallable<Result> action;
     private final ResultFilter<Result> resultFilter;
 
     private FutureTask<Result> future;
 
-    ResultTask(Executor executor, AsyncCallable<Result> action, ResultFilter<Result> resultFilter) {
-        super(executor, action);
+    ResultTask(TaskBuilder taskBuilder, AsyncCallable<Result> action, ResultFilter<Result> resultFilter) {
+        super(taskBuilder, action);
         this.action = action;
         this.resultFilter = resultFilter;
     }
@@ -93,7 +92,6 @@ public class ResultTask<Result> extends Task<ResultTask<Result>> {
         });
 
         executor.execute(future);
-
         return this;
     }
 

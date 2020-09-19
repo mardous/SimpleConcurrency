@@ -14,7 +14,7 @@ ext {
     siteUrl = 'https://github.com/mardous/SimpleConcurrency'
     gitUrl = 'https://github.com/mardous/SimpleConcurrency.git'
 
-    libraryVersion = '1.0.0-RC5'
+    libraryVersion = '1.0.0-RC6'
     libraryVersionCode = buildVersionCode(libraryVersion)
 
     developerId = 'mardous'
@@ -45,6 +45,7 @@ android {
 
 dependencies {
     implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.lifecycle:lifecycle-common:2.2.0'
 }
 
 apply from: 'maven-install.gradle'

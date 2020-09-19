@@ -3,7 +3,7 @@ package com.mardous.concurrency.task;
 import com.mardous.concurrency.AsyncRunnable;
 
 /**
- * @author Chris Alvarado (mardous)
+ * @author Christians Martínez Alvarado (mardous)
  */
 public class SimpleTaskBuilder extends TaskBuilder<SimpleTask> {
     private final AsyncRunnable runnable;
@@ -24,7 +24,7 @@ public class SimpleTaskBuilder extends TaskBuilder<SimpleTask> {
 
     @Override
     public SimpleTask create() {
-        return new SimpleTask(executor, runnable);
+        return new SimpleTask(this, runnable);
     }
 
     @Override

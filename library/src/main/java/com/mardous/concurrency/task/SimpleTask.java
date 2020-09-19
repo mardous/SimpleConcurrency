@@ -3,7 +3,6 @@ package com.mardous.concurrency.task;
 import androidx.annotation.NonNull;
 import com.mardous.concurrency.AsyncRunnable;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 
@@ -11,15 +10,15 @@ import java.util.concurrent.RunnableFuture;
  * A task that simply executes an action without
  * leaving a result.
  *
- * @author Chris Alvarado (mardous)
+ * @author Christians Marínez Alvarado (mardous)
  */
-public class SimpleTask extends Task<SimpleTask> {
+public class SimpleTask extends Task {
 
     private final AsyncRunnable runnable;
     private RunnableFuture<?> future;
 
-    SimpleTask(Executor executor, AsyncRunnable runnable) {
-        super(executor, runnable);
+    SimpleTask(TaskBuilder taskBuilder, AsyncRunnable runnable) {
+        super(taskBuilder, runnable);
         this.runnable = runnable;
     }
 

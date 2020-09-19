@@ -95,13 +95,18 @@ AsyncWorker.forString(new AsyncCallable<String>() {
     .execute();
 ```
 
+You can attach your task to a lifecycle:
+
+```java
+AsyncWorker.simpleTask(() -> longRunningTask())
+    .attachLifecycle(getLifecycle())
+    .execute();
+```
+
 Also, you can cancel a task:
 
 ```java
 // Supposing we have:
-Task task = AsyncWorker.simpleTask(() -> longRunningTask()).execute();
-
-// Or may be:
 Task task = AsyncWorker.forResult(new AsyncCallable<Something>() {
         @Override
         public void onPreExecute() {
@@ -123,9 +128,10 @@ Task task = AsyncWorker.forResult(new AsyncCallable<Something>() {
     .acceptsNull(false) // If you don't want a null result.
     .execute();
 
-// In any case, if you want to cancel a task, your just need to call:
-task.cancel();
+// If you want to cancel the task, your just need to call:
+task.cancel(false);
 ```
+
 ## Note:
 This library is not fully documented because my original language is
 Spanish and (sometimes) I have terrible mistakes when writing in English.
@@ -133,7 +139,7 @@ Any help you can give me to finish the documentation would be great!.
 
 ## License
 ```
-Copyright 2020 Christians Martínez Alvarado (mardous)
+Copyright 2020 Christians Martínez Alvarado
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
