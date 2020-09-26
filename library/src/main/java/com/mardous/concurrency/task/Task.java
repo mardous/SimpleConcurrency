@@ -69,8 +69,8 @@ public abstract class Task implements TaskLifecycleObserver {
      * will always return {@code true}.
      *
      * @param mayInterruptIfRunning {@code true} if the thread executing this
-     * task should be interrupted; otherwise, in-progress tasks are allowed
-     * to complete
+     *                              task should be interrupted; otherwise, in-progress tasks are allowed
+     *                              to complete
      * @return {@code false} if the task could not be cancelled,
      * typically because it has already completed normally;
      * {@code true} otherwise
@@ -84,54 +84,60 @@ public abstract class Task implements TaskLifecycleObserver {
      * @return {@code true} if this task was cancelled before it completed
      */
     public final boolean isCancelled() {
-        synchronized (Task.class) {
-            return state == State.CANCELLED;
-        }
+        return state == State.CANCELLED;
+    }
+
+    /**
+     * Returns true if this task completed normally
+     *
+     * @return {@code true} if this task completed
+     */
+    public final boolean isFinished() {
+        return state == State.FINISHED;
     }
 
     /**
      * Gets the {@link State state} of this task.
      */
     public final State getState() {
-        synchronized (Task.class) {
-            return state;
-        }
+        return state;
     }
 
     /**
      * Internally sets the state of this task.
      */
-    protected final void setState(final State state) {
-        setStateInternal(state);
-        synchronized (Task.class) {
-            uiThreadHandler.post(() -> {
-                switch (state) {
-                    case RUNNING:
-                        taskConnection.mTask = this;
-                        taskConnection.onPreExecute();
-                        break;
-                    case CANCELLED:
-                        taskConnection.onCancelled();
-                        completeShutdown();
-                        break;
-                    case FINISHED:
-                        taskConnection.onFinished();
-                        completeShutdown();
-                        break;
-                }
-            });
-        }
-    }
-
-    private void setStateInternal(State newState) {
+    protected final void setState(final State newState) {
         synchronized (Task.class) {
             Utils.assertNonNull(newState, "State");
-            if (newState == State.RUNNING && state == State.RUNNING) {
-                throw new IllegalStateException("Cannot execute task: the task is already running.");
+            if (newState == State.RUNNING) {
+                if (state == State.RUNNING) {
+                    throw new IllegalStateException("Cannot execute task: the task is already running.");
+                } else if (state == State.FINISHED) {
+                    throw new IllegalArgumentException("Cannot execute task: the task was already executed.");
+                } else if (state == State.CANCELLED) {
+                    throw new IllegalArgumentException("Cannot execute task: the task was canceled previously.");
+                }
             }
-            if (!state.isBellow(newState)) {
-                throw new IllegalArgumentException("Downgrade task state is not permitted. You have tried to downgrade from " +
-                        state.nameWithLevel() + " to " + newState.nameWithLevel());
+            if (taskConnection == null) {
+                return;
+            }
+            switch (newState) {
+                case RUNNING:
+                    taskConnection.mTask = this;
+                    uiThreadHandler.post(() -> taskConnection.onPreExecute());
+                    break;
+                case CANCELLED:
+                    uiThreadHandler.post(() -> {
+                        taskConnection.onCancelled();
+                        completeShutdown();
+                    });
+                    break;
+                case FINISHED:
+                    uiThreadHandler.post(() -> {
+                        taskConnection.onFinished();
+                        completeShutdown();
+                    });
+                    break;
             }
             this.state = newState;
         }
@@ -141,6 +147,9 @@ public abstract class Task implements TaskLifecycleObserver {
      * Internally cancels this task.
      */
     protected final <T> boolean doCancellation(Future<T> future, boolean mayInterruptIfRunning) {
+        if (isCancelled() || isFinished()) {
+            return true;
+        }
         setState(State.CANCELLED);
         return future != null && future.cancel(mayInterruptIfRunning);
     }
@@ -183,37 +192,19 @@ public abstract class Task implements TaskLifecycleObserver {
         /**
          * Means the task is created but has been not executed yet.
          */
-        IDLE(0),
+        IDLE,
         /**
          * Means the task is currently running.
          */
-        RUNNING(25),
+        RUNNING,
         /**
          * Means the task has been previously cancelled by the user.
          */
-        CANCELLED(50),
+        CANCELLED,
         /**
          * Means the task has finished its execution normally
          * (with no calls to {@link #cancel(boolean)}).
          */
-        FINISHED(75);
-
-        int level;
-
-        State(int level) {
-            this.level = level;
-        }
-
-        boolean isAtLeast(State state) {
-            return level >= state.level;
-        }
-
-        boolean isBellow(State state) {
-            return level < state.level;
-        }
-
-        String nameWithLevel() {
-            return name() + " (Level: " + level + ")";
-        }
+        FINISHED;
     }
 }
