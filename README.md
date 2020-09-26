@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.mardous:concurrency:1.0.0-RC5'
+    implementation 'com.mardous:concurrency:VERSION'
 }
 ```
 
