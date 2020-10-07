@@ -1,6 +1,8 @@
 package com.mardous.concurrency;
 
 import android.os.Handler;
+import androidx.annotation.UiThread;
+import androidx.annotation.WorkerThread;
 
 /**
  * @param <T> The result type of method {@link #call()}
@@ -21,18 +23,21 @@ public abstract class AsyncProgressCallable<T> extends AsyncCallable<T> {
      * @param progress The current progress.
      * @param max      The max progress.
      */
+    @WorkerThread
     protected void updateProgress(long progress, long max) {
-        uiThreadHandler.post(() -> onProgressUpdate(progress, max));
+        if (!isCancelled()) {
+            uiThreadHandler.post(() -> onProgressUpdate(progress, max));
+        }
     }
 
     /**
-     * Called when the progress of this task has been updated
-     * using {@link #updateProgress(long, long)}.
+     * Called when the progress of this task has been updated using {@link #updateProgress(long, long)}.
      *
-     * <p>This method will always be called from the main thread.
+     * <p>If the task was cancelled previously, this method will never be called.
      *
      * @param progress The current progress.
      * @param max      The max progress.
      */
+    @UiThread
     public abstract void onProgressUpdate(long progress, long max);
 }

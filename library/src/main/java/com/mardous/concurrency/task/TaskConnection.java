@@ -16,7 +16,7 @@ public abstract class TaskConnection {
 
     /**
      * Keeps a reference to the associated task.
-     * Once the task is finished, we set its value to null
+     * Once the task has finished, we set its value to null
      * in order to avoid memory leaks.
      */
     Task mTask;
@@ -35,8 +35,8 @@ public abstract class TaskConnection {
      * will always return {@code true}.
      *
      * @param mayInterruptIfRunning {@code true} if the thread executing this
-     * task should be interrupted; otherwise, in-progress tasks are allowed
-     * to complete
+     *                              task should be interrupted; otherwise, in-progress tasks are allowed
+     *                              to complete
      * @return {@code false} if the task could not be cancelled,
      * typically because it has already completed normally;
      * {@code true} otherwise
@@ -104,6 +104,8 @@ public abstract class TaskConnection {
      * in an unexpected way due to an error during its execution. This method will always
      * be called from the <b>main</b> {@link Thread thread}.
      *
+     * <p>If the task was cancelled previously, this method will never be called.
+     *
      * <p>Default implementation does nothing.
      *
      * @param e An {@link Exception} describing the error.
@@ -113,11 +115,10 @@ public abstract class TaskConnection {
 
     /**
      * Called when the associated {@link Task} of this {@link TaskConnection} has finished.
-     * This is a generic callback and will be called regardless of if the task finished
-     * successfully or not.
+     * This is a generic callback and will be called regardless of the final state of the task
+     * (successful, error, cancelled, etc.).
      *
-     * <p>If your task is holding some resources this may be a good point
-     * to release then.
+     * <p>If your task is holding some resources this may be a good point to release then.
      *
      * <p>Default implementation does nothing.
      */

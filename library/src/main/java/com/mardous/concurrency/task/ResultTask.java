@@ -97,10 +97,12 @@ public class ResultTask<Result> extends Task {
 
     @WorkerThread
     private Result postResult(Result result) {
-        if (resultFilter.acceptable(result)) {
-            post(() -> action.onSuccess(result));
-        } else {
-            post(() -> action.onBadResult(result));
+        if (!isCancelled()) {
+            if (resultFilter.acceptable(result)) {
+                post(() -> action.onSuccess(result));
+            } else {
+                post(() -> action.onBadResult(result));
+            }
         }
         return result;
     }

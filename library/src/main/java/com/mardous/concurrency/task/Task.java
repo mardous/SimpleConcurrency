@@ -14,9 +14,7 @@ import java.util.concurrent.Future;
 
 /**
  * A {@code task} is defined by a computation that runs on a background thread and
- * may leave a result, which is published on the UI thread. An asynchronous task is
- * defined by one generic type, called {@code Type}, which represents the type of
- * the task:
+ * may leave a result, which is published on the UI thread.
  *
  * <p>Currently, we provide two types:
  * <ol>
@@ -32,7 +30,7 @@ public abstract class Task implements TaskLifecycleObserver {
 
     protected volatile Lifecycle lifecycle;
     protected volatile Executor executor;
-    protected TaskConnection taskConnection;
+    protected volatile TaskConnection taskConnection;
 
     private volatile State state = State.IDLE;
 
@@ -83,7 +81,7 @@ public abstract class Task implements TaskLifecycleObserver {
      *
      * @return {@code true} if this task was cancelled before it completed
      */
-    public final boolean isCancelled() {
+    public synchronized final boolean isCancelled() {
         return state == State.CANCELLED;
     }
 
@@ -92,7 +90,7 @@ public abstract class Task implements TaskLifecycleObserver {
      *
      * @return {@code true} if this task completed
      */
-    public final boolean isFinished() {
+    public synchronized final boolean isFinished() {
         return state == State.FINISHED;
     }
 
@@ -118,22 +116,26 @@ public abstract class Task implements TaskLifecycleObserver {
                     throw new IllegalArgumentException("Cannot execute task: the task was canceled previously.");
                 }
             }
-            if (taskConnection == null) {
-                return;
-            }
+
             switch (newState) {
                 case RUNNING:
+                    if (taskConnection == null) return;
                     taskConnection.mTask = this;
-                    uiThreadHandler.post(() -> taskConnection.onPreExecute());
+                    post(() -> {
+                        if (taskConnection == null) return;
+                        taskConnection.onPreExecute();
+                    });
                     break;
                 case CANCELLED:
-                    uiThreadHandler.post(() -> {
+                    post(() -> {
+                        if (taskConnection == null) return;
                         taskConnection.onCancelled();
                         completeShutdown();
                     });
                     break;
                 case FINISHED:
-                    uiThreadHandler.post(() -> {
+                    post(() -> {
+                        if (taskConnection == null) return;
                         taskConnection.onFinished();
                         completeShutdown();
                     });
@@ -167,17 +169,20 @@ public abstract class Task implements TaskLifecycleObserver {
      */
     @WorkerThread
     protected final void postError(Exception e) {
-        post(() -> taskConnection.onError(e));
+        if (!isCancelled()) {
+            post(() -> taskConnection.onError(e));
+        }
     }
 
     private void completeShutdown() {
         if (lifecycle != null)
             lifecycle.removeObserver(this);
 
-        // To reduce footprint
-        taskConnection.mTask = null;
-        taskConnection = null;
-        executor = null;
+        if (taskConnection != null) {
+            // To reduce footprint
+            taskConnection.mTask = null;
+            taskConnection = null;
+        }
     }
 
     @Override

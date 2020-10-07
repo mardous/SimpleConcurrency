@@ -1,5 +1,6 @@
 package com.mardous.concurrency.task;
 
+import android.os.Process;
 import androidx.annotation.NonNull;
 import com.mardous.concurrency.AsyncRunnable;
 
@@ -34,6 +35,7 @@ public class SimpleTask extends Task {
 
         future = new FutureTask<>(() -> {
             try {
+                Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
                 runnable.run();
             } catch (Exception e) {
                 postError(e);
