@@ -45,7 +45,10 @@ public class ResultTask<Result> extends Task {
     @Nullable
     @MainThread
     public Result getResult() throws ExecutionException, InterruptedException {
-        return future.get();
+    	if (future != null) {
+        	return future.get();
+    	}
+    	return null;
     }
 
     /**
@@ -63,7 +66,10 @@ public class ResultTask<Result> extends Task {
     @Nullable
     @MainThread
     public Result getResult(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        return future.get(timeout, unit);
+    	if (future != null) {
+        	return future.get(timeout, unit);
+        }
+        return null;
     }
 
     @Override

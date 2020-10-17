@@ -6,7 +6,7 @@ import android.os.Looper;
 /**
  * @author Christians Martínez Alvarado (mardous)
  */
-public class Handlers {
+public final class Handlers {
 
     /**
      * Creates a new {@link Handler} bound to the main thread.

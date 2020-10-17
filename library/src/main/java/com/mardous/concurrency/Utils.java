@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 /**
  * @author Christians Martínez Alvarado (mardous)
  */
-public class Utils {
+public final class Utils {
 
     public static void assertNonNull(@Nullable Object object, @Nullable String objectName) {
         if (object == null) {

@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author Christians Martínez Alvarado (mardous)
  */
-public class ResultFilter<T> {
+public final class ResultFilter<T> {
 
     private List<Predicate<T>> filters = Collections.synchronizedList(new LinkedList<>());
 
