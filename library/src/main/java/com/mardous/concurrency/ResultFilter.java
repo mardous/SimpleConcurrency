@@ -4,10 +4,14 @@ import android.util.Log;
 import com.mardous.concurrency.internal.Predicate;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * A class designed to hold {@link Predicate}s that can be used
+ * to test any object resulting from the execution of {@link AsyncCallable#call()}.
+ *
  * @author Christians Martínez Alvarado (mardous)
  */
 public final class ResultFilter<T> {
@@ -19,7 +23,8 @@ public final class ResultFilter<T> {
     }
 
     public boolean acceptable(T result) {
-        for (Predicate<T> p : filters) {
+        for (int i = 0; i < filters.size(); i++) {
+            Predicate<T> p = filters.remove(i);
             try {
                 if (p != null && !p.test(result))
                     return false;

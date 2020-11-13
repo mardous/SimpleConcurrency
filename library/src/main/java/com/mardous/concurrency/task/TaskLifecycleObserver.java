@@ -5,6 +5,8 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
 /**
+ * Marks a {@link Task} as a {@link LifecycleObserver}.
+ *
  * @author Christians Martínez Alvarado (mardous)
  */
 interface TaskLifecycleObserver extends LifecycleObserver {
