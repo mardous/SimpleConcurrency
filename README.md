@@ -2,10 +2,20 @@
 [![License: Apache 2](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://github.com/mardous/SimpleConcurrency/blob/master/LICENSE)
 [![](https://jitpack.io/v/mardous/SimpleConcurrency.svg)](https://jitpack.io/#mardous/SimpleConcurrency)
 
+# Table of contents
+
+- [Description](#description)
+- [Download](#download)
+  - [Using Bintray OSS](#using-bintray-oss)
+  - [Using JitPack](#using-jitpack)
+- [Implementation](#implementation)
+- [License](#license)
+
+## Description
 An easy-to-use library for Android designed to be the perfect replacement for AsyncTask
 
-## Implementation
-First, add the dependency:
+## Download
+There are two ways to download this lib:
 
 ##### Using Bintray OSS:
 ```groovy
@@ -31,6 +41,7 @@ dependencies {
 }
 ```
 
+## Implementation
 Executing a simple task (with a [Runnable]):
 
 ```java
@@ -131,11 +142,6 @@ Task task = AsyncWorker.forResult(new AsyncCallable<Something>() {
 // If you want to cancel the task, your just need to call:
 task.cancel(false);
 ```
-
-## Note:
-This library is not fully documented because my original language is
-Spanish and (sometimes) I have terrible mistakes when writing in English.
-Any help you can give me to finish the documentation would be great!.
 
 ## License
 ```
