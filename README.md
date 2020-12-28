@@ -4,6 +4,7 @@
 
 # Table of contents
 
+- [Deprecated](#deprecated)
 - [Description](#description)
 - [Download](#download)
   - [Using Bintray OSS](#using-bintray-oss)
@@ -11,35 +12,16 @@
 - [Implementation](#implementation)
 - [License](#license)
 
+## Deprecated
+This library has been deprecated. You should use Kotlin Coroutines or RxJava, they are more complete solutions and the Kotlin alternative is certainly very amazing!
+
+This repository will continue to be available.
+
 ## Description
 An easy-to-use library for Android designed to be the perfect replacement for AsyncTask
 
 ## Download
-There are two ways to download this lib:
-
-##### Using Bintray OSS:
-```groovy
-repositories {
-    maven {
-        url  "https://dl.bintray.com/mardous/Maven" 
-    }
-}
-
-dependencies {
-    implementation 'com.mardous:concurrency:VERSION'
-}
-```
-
-##### Using JitPack:
-```groovy
-repositories {
-    maven { url "https://jitpack.io" }
-}
-
-dependencies {
-    implementation 'com.github.mardous:SimpleConcurrency:Tag'
-}
-```
+Downloads for this library are no longer available.
 
 ## Implementation
 Executing a simple task (with a [Runnable]):
